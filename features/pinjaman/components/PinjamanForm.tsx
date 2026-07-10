@@ -7,6 +7,7 @@ import {
   Fingerprint, ScanFace, ShieldCheck, Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FaceLivenessDetector } from "@/features/identity-membership";
 import { pinjamanSchema } from "../schemas/pinjaman";
 import { ajukanPinjaman } from "../actions/pinjaman";
 import type { PinjamanRecord } from "../types/pinjaman";
@@ -92,11 +93,12 @@ export function PinjamanForm({ nik, namaLengkap, onBack }: PinjamanFormProps) {
     setBiometricStep("fingerprint");
     await new Promise((r) => setTimeout(r, 1200));
     setBiometricStep("face");
-    await new Promise((r) => setTimeout(r, 1200));
-    setBiometricStep("done");
-    await new Promise((r) => setTimeout(r, 600));
-    setStep("success");
   };
+
+  const handleFaceSuccess = useCallback(() => {
+    setBiometricStep("done");
+    setTimeout(() => setStep("success"), 600);
+  }, []);
 
   function BiometricCard({
     icon: Icon,
@@ -170,6 +172,41 @@ export function PinjamanForm({ nik, namaLengkap, onBack }: PinjamanFormProps) {
 
   if (step === "verify" && record) {
     const isRunning = biometricStep !== "idle";
+    const isFaceStep = biometricStep === "face";
+
+    if (isFaceStep) {
+      return (
+        <div className="mx-auto flex h-full w-full max-w-2xl flex-col items-center justify-center gap-8 animate-foundation-in">
+          <span className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <ShieldCheck aria-hidden="true" className="size-10" />
+          </span>
+          <div className="text-center">
+            <h1 className="text-3xl font-extrabold sm:text-4xl">Verifikasi Identitas</h1>
+            <p className="mt-2 text-base text-muted-foreground">
+              Arahkan wajah ke kamera dan tahan selama 3 detik
+            </p>
+          </div>
+
+          {error && (
+            <div
+              role="alert"
+              className="w-full rounded-xl border border-destructive/30 bg-destructive/10 px-5 py-4 text-base font-medium text-destructive"
+            >
+              {error}
+            </div>
+          )}
+
+          <div className="w-full max-w-md">
+            <FaceLivenessDetector
+              onSuccess={handleFaceSuccess}
+              onError={(msg) => setError(msg)}
+              onBack={() => { setStep("form"); setBiometricStep("idle"); }}
+            />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="mx-auto flex h-full w-full max-w-2xl flex-col items-center justify-center gap-8 animate-foundation-in">
         <span className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary">

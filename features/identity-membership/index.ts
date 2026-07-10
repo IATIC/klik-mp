@@ -20,6 +20,9 @@ export {
   type IdentityMembershipWorkflowProps,
 } from "./components/identity-membership-workflow";
 export {
+  FaceLivenessDetector,
+} from "./components/face-liveness-detector";
+export {
   biometricModalitySchema,
   biometricVerificationRequestSchema,
   biometricVerificationSchema,

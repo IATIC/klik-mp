@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useKioskFlow, DEMO_IDENTITY } from "@/features/kiosk-flow";
 import type { DeviceStatus as DeviceStatusType, AuthenticatedUser } from "@/features/kiosk-flow";
 import { fingerprintAdapter } from "@/lib/devices/fingerprint";
-import { cameraAdapter } from "@/lib/devices/camera";
+
 
 type BiometricMode = "fingerprint" | "face";
 
@@ -22,7 +22,6 @@ export default function BiometricLoginPage() {
   const [scanning, setScanning] = useState(false);
   const [activeMode, setActiveMode] = useState<BiometricMode | null>(null);
   const [fpStatus, setFpStatus] = useState<DeviceStatusType>("idle");
-  const [faceStatus, setFaceStatus] = useState<DeviceStatusType>("idle");
   const [error, setError] = useState<string | null>(null);
 
   async function handleFingerprint() {
@@ -30,7 +29,6 @@ export default function BiometricLoginPage() {
     setActiveMode("fingerprint");
     setError(null);
     setFpStatus("reading");
-    setFaceStatus("idle");
 
     try {
       const result = await fingerprintAdapter.scan();
@@ -60,39 +58,8 @@ export default function BiometricLoginPage() {
     }
   }
 
-  async function handleFace() {
-    setScanning(true);
-    setActiveMode("face");
-    setError(null);
-    setFaceStatus("capturing");
-    setFpStatus("idle");
-
-    try {
-      const result = await cameraAdapter.captureFace();
-
-      if (result.ok) {
-        setFaceStatus("success");
-
-        const user: AuthenticatedUser = {
-          memberNumber: DEMO_IDENTITY.memberNumber,
-          fullName: DEMO_IDENTITY.fullName,
-          nikMasked: "3273••••••••0042",
-          loginMethod: "face",
-        };
-
-        dispatch({ type: "AUTHENTICATE", user });
-        await new Promise((r) => setTimeout(r, 600));
-        router.push("/kiosk");
-      } else {
-        setFaceStatus("failed");
-        setError(result.error);
-        setScanning(false);
-      }
-    } catch {
-      setFaceStatus("failed");
-      setError("Terjadi kesalahan pada kamera.");
-      setScanning(false);
-    }
+  function handleFace() {
+    router.push("/login/biometric/face");
   }
 
   return (
@@ -158,21 +125,11 @@ export default function BiometricLoginPage() {
             type="button"
             onClick={handleFace}
             disabled={scanning && activeMode !== "face"}
-            className={`group flex min-h-52 flex-col items-center justify-center rounded-3xl border-2 p-7 text-center outline-none transition duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-4 focus-visible:ring-ring/25 disabled:opacity-40 [&:not(:disabled)]:cursor-pointer ${
-              activeMode === "face" && faceStatus === "capturing"
-                ? "border-primary bg-primary/5"
-                : activeMode === "face" && faceStatus === "success"
-                  ? "border-green-500 bg-green-50"
-                  : activeMode === "face" && faceStatus === "failed"
-                    ? "border-destructive bg-destructive/5"
-                    : "border-border bg-background hover:border-primary/50"
-            }`}
+            className="group flex min-h-52 flex-col items-center justify-center rounded-3xl border-2 border-border bg-background p-7 text-center outline-none transition duration-200 hover:border-primary/50 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-4 focus-visible:ring-ring/25 disabled:opacity-40 [&:not(:disabled)]:cursor-pointer"
           >
             <ScanFace
               aria-hidden="true"
-              className={`size-14 sm:size-16 ${
-                faceStatus === "capturing" ? "animate-pulse text-primary" : "text-primary"
-              }`}
+              className="size-14 text-primary sm:size-16"
               strokeWidth={1.7}
             />
             <h2 className="mt-5 text-2xl font-extrabold sm:text-3xl">
@@ -204,23 +161,6 @@ export default function BiometricLoginPage() {
             </div>
           ) : null}
 
-          {activeMode === "face" && faceStatus !== "idle" ? (
-            <div className="animate-foundation-in">
-              <DeviceStatus
-                status={faceStatus}
-                label={
-                  faceStatus === "capturing"
-                    ? "Mengenali wajah..."
-                    : faceStatus === "success"
-                      ? "Wajah dikenali"
-                      : "Pengenalan gagal"
-                }
-                detail={
-                  faceStatus === "failed" && error ? error : undefined
-                }
-              />
-            </div>
-          ) : null}
         </div>
 
         {/* Fallback link */}
