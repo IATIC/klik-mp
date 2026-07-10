@@ -7,7 +7,7 @@ import {
   PiggyBank,
   HandCoins,
   Stethoscope,
-  ShoppingCart,
+  ClipboardList,
   LogOut,
   UserRound,
 } from "lucide-react";
@@ -42,7 +42,7 @@ type MenuItem = {
 const MENUS: MenuItem[] = [
   {
     id: "offtacker",
-    label: "Offtacker",
+    label: "Off-Taker",
     icon: Handshake,
     color: "from-[#025669] to-[#054353]",
     iconBg: "bg-white/15",
@@ -77,13 +77,13 @@ const MENUS: MenuItem[] = [
     desc: "Layanan kesehatan",
   },
   {
-    id: "erat",
-    label: "E-Rat",
-    icon: ShoppingCart,
+    id: "rat",
+    label: "Rapat Anggota Tahunan",
+    icon: ClipboardList,
     color: "from-violet-600 to-violet-800",
     iconBg: "bg-white/15",
     route: "/erat",
-    desc: "Belanja kebutuhan",
+    desc: "Laporan & evaluasi tahunan",
   },
 ];
 
