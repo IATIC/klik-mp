@@ -18,7 +18,7 @@ export function KioskHeader({ homeHref = "/", showExit = false, onExit }: KioskH
         </span>
         <span>
           <strong className="block text-xl font-extrabold tracking-[0.08em] text-deep-teal sm:text-2xl">KLIK-MP</strong>
-          <span className="hidden text-xs font-medium text-muted-foreground sm:block">Kios Layanan Intake Komoditas</span>
+          <span className="hidden text-xs font-medium text-muted-foreground sm:block">Kios Layanan Integrasi Koperasi Merah Putih</span>
         </span>
       </Link>
       <div className="flex items-center gap-3">

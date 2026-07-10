@@ -65,7 +65,7 @@ export default function WelcomePage() {
             KLIK-MP
           </h1>
           <p className="mt-3 text-sm font-semibold tracking-[0.12em] text-primary sm:text-base">
-            Kios Layanan Intake Komoditas
+            Kios Layanan Integrasi Koperasi Merah Putih
           </p>
           <p className="mx-auto mt-4 max-w-sm text-balance text-base leading-7 text-muted-foreground sm:text-lg">
             Satu alur untuk identitas, mutu, dan kesepakatan harga

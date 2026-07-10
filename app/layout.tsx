@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s · KLIK-MP",
   },
   description:
-    "Kios layanan intake komoditas Koperasi Desa/Kelurahan Merah Putih.",
+    "Kios Layanan Integrasi Koperasi Merah Putih.",
 };
 
 export default function RootLayout({

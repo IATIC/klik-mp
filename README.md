@@ -1,6 +1,6 @@
 # KLIK-MP
 
-Kios Layanan Intake Komoditas untuk Koperasi Desa/Kelurahan Merah Putih. MVP menyatukan verifikasi anggota, penimbangan dan foto, assessment komoditas berbantuan AI, negosiasi harga, persetujuan akhir, serta pendampingan operator.
+Kios Layanan Integrasi Koperasi Merah Putih. MVP menyatukan verifikasi anggota, penimbangan dan foto, assessment komoditas berbantuan AI, negosiasi harga, persetujuan akhir, serta pendampingan operator.
 
 ## Alur MVP
 
