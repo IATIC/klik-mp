@@ -14,11 +14,14 @@ const buttonVariants = cva(
         outline:
           "border border-border bg-background text-foreground hover:border-primary/30 hover:bg-surface",
         ghost: "text-foreground hover:bg-surface",
+        danger:
+          "border border-destructive bg-background text-destructive hover:bg-destructive/5",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-lg px-5",
+        kiosk: "min-h-14 rounded-xl px-8 py-4 text-base sm:min-h-16 sm:text-lg",
         icon: "size-10",
       },
     },

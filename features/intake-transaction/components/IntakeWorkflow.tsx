@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Circle, CircleDollarSign, PackageCheck, X } from "lucide-react";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -59,13 +59,14 @@ export function IntakeWorkflow({
   onComplete,
   onCancel,
 }: IntakeWorkflowProps) {
-  const [previewStatus, setPreviewStatus] = useState<IntakeSessionStatus | null>(
-    null,
-  );
-
-  useEffect(() => {
-    setPreviewStatus(null);
-  }, [session.status]);
+  const [previewSelection, setPreviewSelection] = useState<{
+    previewStatus: IntakeSessionStatus;
+    serverStatus: IntakeSessionStatus;
+  } | null>(null);
+  const previewStatus =
+    previewSelection?.serverStatus === session.status
+      ? previewSelection.previewStatus
+      : null;
 
   const displayedStatus = previewStatus ?? session.status;
   const activeStepStatus = toPreviewStatus(displayedStatus);
@@ -111,10 +112,13 @@ export function IntakeWorkflow({
                 title={allowStagePreview ? `Preview · ${step.featurePath}` : undefined}
                 aria-current={selected ? "step" : undefined}
                 onClick={() =>
-                  setPreviewStatus(
+                  setPreviewSelection(
                     step.previewStatus === session.status
                       ? null
-                      : step.previewStatus,
+                      : {
+                          previewStatus: step.previewStatus,
+                          serverStatus: session.status,
+                        },
                   )
                 }
                 className={`flex w-full items-center gap-2 rounded-xl border p-3 text-left text-xs font-semibold transition-colors ${
