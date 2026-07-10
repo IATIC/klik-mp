@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ export default function WelcomePage() {
   const router = useRouter();
 
   return (
-    <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-white px-6">
+    <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-green-50 via-white to-green-50 px-6">
       {/* Decorative CSS shapes - no SVGs */}
       <div
         aria-hidden="true"
@@ -47,28 +48,22 @@ export default function WelcomePage() {
 
       {/* Content */}
       <div className="flex flex-col items-center gap-4 animate-foundation-in">
-        {/* Simple shape cluster representing building/scale/plant */}
-        <div className="flex items-center gap-5" aria-hidden="true">
-          <div className="size-16 rounded-2xl border-2 border-primary/30 bg-primary/5 p-3 sm:size-20">
-            <div className="h-full w-full rounded-md border border-primary/20" />
-          </div>
-          <div className="size-16 rounded-full border-2 border-primary/30 bg-primary/5 sm:size-20">
-            <div className="mx-auto mt-3 h-1/2 w-3/5 rounded border border-primary/20" />
-          </div>
-          <div className="size-16 rounded-2xl border-2 border-primary/30 bg-primary/5 p-3 sm:size-20">
-            <div className="mx-auto h-3/4 w-2/5 rounded-full border border-primary/20" />
-          </div>
-        </div>
+        {/* KLIK-MP logo */}
+        <Image
+          src="/assets/KLIK-MP_logo.png"
+          alt="KLIK-MP"
+          width={180}
+          height={180}
+          className="h-auto w-[8.4rem] sm:w-[13.2rem]"
+          priority
+        />
 
-        <div className="mt-6 text-center">
-          <h1 className="text-5xl font-extrabold tracking-[-0.04em] text-deep-teal sm:text-6xl">
-            KLIK-MP
-          </h1>
-          <p className="mt-3 text-sm font-semibold tracking-[0.12em] text-primary sm:text-base">
-            Kios Layanan Intake Komoditas
+        <div className="mt-12 text-center">
+          <p className="text-sm font-semibold tracking-[0.12em] text-primary sm:text-base">
+            Kios Layanan Integrasi Koperasi Merah Putih
           </p>
           <p className="mx-auto mt-4 max-w-sm text-balance text-base leading-7 text-muted-foreground sm:text-lg">
-            Satu alur untuk identitas, mutu, dan kesepakatan harga
+            Anggota mudah. Petugas ringan. Koperasi terintegrasi.
           </p>
         </div>
       </div>
