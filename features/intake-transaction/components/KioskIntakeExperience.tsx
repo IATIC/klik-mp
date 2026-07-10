@@ -67,6 +67,7 @@ export type KioskIntakeExperienceProps = {
   deviceMode: KioskDeviceMode;
   membershipStatus: MembershipStatus;
   savingsRequiredAmount: number;
+  allowStagePreview?: boolean;
 };
 
 const rupiah = new Intl.NumberFormat("id-ID", {
@@ -141,6 +142,7 @@ export function KioskIntakeExperience({
   deviceMode,
   membershipStatus,
   savingsRequiredAmount,
+  allowStagePreview = false,
 }: KioskIntakeExperienceProps) {
   const router = useRouter();
   const [session, setSession] = useState<IntakeSession>(initialSession);
@@ -389,11 +391,20 @@ export function KioskIntakeExperience({
     />
   );
 
-  const assessmentStep = session.capture ? (
+  const assessmentCapture =
+    session.capture ??
+    (allowStagePreview
+      ? {
+          captureId: "preview-capture",
+          imageUrl: "data:image/jpeg;base64,bW9jay1jb21tb2RpdHk=",
+        }
+      : null);
+
+  const assessmentStep = assessmentCapture ? (
     <CommodityAssessmentPanel
       input={{
-        captureId: session.capture.captureId,
-        imageUrl: session.capture.imageUrl,
+        captureId: assessmentCapture.captureId,
+        imageUrl: assessmentCapture.imageUrl,
       }}
       visionAdapter={adapters.vision}
       onAssessed={handleAssessed}
@@ -472,6 +483,7 @@ export function KioskIntakeExperience({
         captureStep={captureStep}
         assessmentStep={assessmentStep}
         pricingStep={pricingStep}
+        allowStagePreview={allowStagePreview}
         onApproveBuyer={() => handleFinalApproval("BUYER")}
         onApproveSeller={() => handleFinalApproval("SELLER")}
         onComplete={busy ? undefined : handleComplete}

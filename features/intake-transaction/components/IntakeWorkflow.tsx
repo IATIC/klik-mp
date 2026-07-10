@@ -1,20 +1,25 @@
 "use client";
 
 import { Check, Circle, CircleDollarSign, PackageCheck, X } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
 import type { IntakeSession, IntakeSessionStatus } from "../types/contracts";
 
-const steps: { status: IntakeSessionStatus; label: string }[] = [
-  { status: "IDENTITY_VERIFIED", label: "Identitas" },
-  { status: "MEMBERSHIP_READY", label: "Keanggotaan" },
-  { status: "COMMODITY_CAPTURED", label: "Timbang & foto" },
-  { status: "COMMODITY_ASSESSED", label: "Penilaian" },
-  { status: "OFFER_CREATED", label: "Penawaran" },
-  { status: "AGREED", label: "Kesepakatan" },
-  { status: "COMPLETED", label: "Selesai" },
+const steps: {
+  completionStatus: IntakeSessionStatus;
+  previewStatus: IntakeSessionStatus;
+  label: string;
+  featurePath: string;
+}[] = [
+  { completionStatus: "IDENTITY_VERIFIED", previewStatus: "DRAFT", label: "Identitas", featurePath: "features/identity-membership" },
+  { completionStatus: "MEMBERSHIP_READY", previewStatus: "IDENTITY_VERIFIED", label: "Keanggotaan", featurePath: "features/identity-membership" },
+  { completionStatus: "COMMODITY_CAPTURED", previewStatus: "MEMBERSHIP_READY", label: "Timbang & foto", featurePath: "features/commodity-capture" },
+  { completionStatus: "COMMODITY_ASSESSED", previewStatus: "COMMODITY_CAPTURED", label: "Penilaian", featurePath: "features/commodity-assessment" },
+  { completionStatus: "OFFER_CREATED", previewStatus: "COMMODITY_ASSESSED", label: "Penawaran", featurePath: "features/pricing-negotiation" },
+  { completionStatus: "AGREED", previewStatus: "AGREED", label: "Kesepakatan", featurePath: "features/pricing-negotiation + intake-transaction" },
+  { completionStatus: "COMPLETED", previewStatus: "COMPLETED", label: "Selesai", featurePath: "features/intake-transaction" },
 ];
 
 const statusOrder: IntakeSessionStatus[] = [
@@ -35,6 +40,7 @@ export type IntakeWorkflowProps = {
   captureStep?: ReactNode;
   assessmentStep?: ReactNode;
   pricingStep?: ReactNode;
+  allowStagePreview?: boolean;
   onApproveBuyer?: () => void;
   onApproveSeller?: () => void;
   onComplete?: () => void;
@@ -47,19 +53,31 @@ export function IntakeWorkflow({
   captureStep,
   assessmentStep,
   pricingStep,
+  allowStagePreview = false,
   onApproveBuyer,
   onApproveSeller,
   onComplete,
   onCancel,
 }: IntakeWorkflowProps) {
+  const [previewStatus, setPreviewStatus] = useState<IntakeSessionStatus | null>(
+    null,
+  );
+
+  useEffect(() => {
+    setPreviewStatus(null);
+  }, [session.status]);
+
+  const displayedStatus = previewStatus ?? session.status;
+  const activeStepStatus = toPreviewStatus(displayedStatus);
+  const previewing = previewStatus !== null && previewStatus !== session.status;
   const currentIndex = statusOrder.indexOf(session.status);
   const buyerApproved = session.approvals.some(({ party }) => party === "BUYER");
   const sellerApproved = session.approvals.some(({ party }) => party === "SELLER");
-  const canFinalize = session.status === "AGREED";
+  const canFinalize = displayedStatus === "AGREED";
   const terminal = ["COMPLETED", "REJECTED", "CANCELLED"].includes(
     session.status,
   );
-  const activeModule = getActiveModule(session.status, {
+  const activeModule = getActiveModule(displayedStatus, {
     identityStep,
     captureStep,
     assessmentStep,
@@ -82,27 +100,64 @@ export function IntakeWorkflow({
 
       <ol aria-label="Tahapan penerimaan" className="grid gap-2 sm:grid-cols-4 lg:grid-cols-7">
         {steps.map((step) => {
-          const stepIndex = statusOrder.indexOf(step.status);
+          const stepIndex = statusOrder.indexOf(step.completionStatus);
           const done = currentIndex >= stepIndex && currentIndex >= 0;
+          const selected = activeStepStatus === step.previewStatus;
           return (
-            <li
-              key={step.status}
-              className="flex items-center gap-2 rounded-xl border border-border bg-background p-3 text-xs font-semibold"
-            >
-              {done ? (
-                <Check aria-hidden="true" className="size-4 text-success" />
-              ) : (
-                <Circle aria-hidden="true" className="size-4 text-muted-foreground" />
-              )}
-              {step.label}
+            <li key={step.completionStatus}>
+              <button
+                type="button"
+                disabled={!allowStagePreview}
+                title={allowStagePreview ? `Preview · ${step.featurePath}` : undefined}
+                aria-current={selected ? "step" : undefined}
+                onClick={() =>
+                  setPreviewStatus(
+                    step.previewStatus === session.status
+                      ? null
+                      : step.previewStatus,
+                  )
+                }
+                className={`flex w-full items-center gap-2 rounded-xl border p-3 text-left text-xs font-semibold transition-colors ${
+                  selected
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border bg-background"
+                } ${allowStagePreview ? "cursor-pointer hover:border-primary/40 hover:bg-surface" : "cursor-default"}`}
+              >
+                {done ? (
+                  <Check aria-hidden="true" className="size-4 text-success" />
+                ) : (
+                  <Circle aria-hidden="true" className="size-4 text-muted-foreground" />
+                )}
+                {step.label}
+              </button>
             </li>
           );
         })}
       </ol>
 
+      {previewing ? (
+        <div className="border border-info/25 bg-info/5 px-4 py-3 text-sm text-info">
+          Preview development: status server tetap {session.status}. Kontrol pada
+          panel preview dinonaktifkan.
+        </div>
+      ) : null}
+
       {activeModule ? (
-        <div aria-label="Modul aktif" className="rounded-2xl border border-border bg-background p-5">
+        <div
+          aria-label={previewing ? "Preview modul" : "Modul aktif"}
+          inert={previewing}
+          className={`rounded-2xl border border-border bg-background p-5 ${previewing ? "opacity-75" : ""}`}
+        >
           {activeModule}
+        </div>
+      ) : null}
+
+      {previewing && displayedStatus === "COMPLETED" ? (
+        <div className="rounded-2xl border border-border bg-background p-5">
+          <p className="font-bold">Preview receipt</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Receipt nyata hanya tersedia setelah status server COMPLETED.
+          </p>
         </div>
       ) : null}
 
@@ -119,7 +174,7 @@ export function IntakeWorkflow({
             <Button
               variant={buyerApproved ? "outline" : "default"}
               onClick={onApproveBuyer}
-              disabled={buyerApproved || !onApproveBuyer}
+              disabled={previewing || buyerApproved || !onApproveBuyer}
             >
               <Check aria-hidden="true" />
               {buyerApproved ? "Pembeli sudah setuju" : "Persetujuan pembeli"}
@@ -127,14 +182,14 @@ export function IntakeWorkflow({
             <Button
               variant={sellerApproved ? "outline" : "default"}
               onClick={onApproveSeller}
-              disabled={sellerApproved || !onApproveSeller}
+              disabled={previewing || sellerApproved || !onApproveSeller}
             >
               <Check aria-hidden="true" />
               {sellerApproved ? "Penjual sudah setuju" : "Persetujuan penjual"}
             </Button>
             <Button
               onClick={onComplete}
-              disabled={!buyerApproved || !sellerApproved || !onComplete}
+              disabled={previewing || !buyerApproved || !sellerApproved || !onComplete}
             >
               <PackageCheck aria-hidden="true" /> Selesaikan penerimaan
             </Button>
@@ -171,4 +226,11 @@ function getActiveModule(
     return slots.pricingStep;
   }
   return null;
+}
+
+function toPreviewStatus(status: IntakeSessionStatus): IntakeSessionStatus {
+  if (["OFFER_CREATED", "NEGOTIATING"].includes(status)) {
+    return "COMMODITY_ASSESSED";
+  }
+  return status;
 }

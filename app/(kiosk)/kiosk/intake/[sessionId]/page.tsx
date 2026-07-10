@@ -51,6 +51,10 @@ export default async function IntakeSessionPage({
           ? Math.max(0, configuredSavings)
           : 100_000
       }
+      allowStagePreview={
+        process.env.NODE_ENV !== "production" &&
+        process.env.DEV_WORKFLOW_NAV === "true"
+      }
     />
   );
 }
