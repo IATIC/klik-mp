@@ -73,7 +73,7 @@ const MENUS: MenuItem[] = [
     icon: Stethoscope,
     color: "from-rose-600 to-rose-800",
     iconBg: "bg-white/15",
-    route: "/klinikdesa",
+    route: "/clinic",
     desc: "Layanan kesehatan",
   },
   {
