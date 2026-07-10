@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ClipboardList, Scale, ShieldCheck, Tags } from "lucide-react";
 
 const navigation = [
-  { href: "/operator/transactions", label: "Transaksi", icon: ClipboardList },
+  { href: "/operator/intakes", label: "Intake", icon: ClipboardList },
   { href: "/operator/reference-prices", label: "Referensi harga", icon: Tags },
-  { href: "/intake", label: "Buka kios", icon: Scale },
+  { href: "/kiosk", label: "Buka kios", icon: Scale },
 ] as const;
 
 export default function OperatorLayout({
@@ -14,7 +14,7 @@ export default function OperatorLayout({
     <div className="min-h-svh bg-surface text-foreground">
       <header className="border-b border-border bg-deep-teal text-white">
         <div className="mx-auto flex min-h-18 w-full max-w-[96rem] flex-col gap-4 px-5 py-4 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
-          <Link href="/" className="flex items-center gap-3 rounded-md">
+          <Link href="/operator" className="flex items-center gap-3 rounded-md">
             <ShieldCheck aria-hidden="true" className="size-5 text-accent-green" />
             <span>
               <span className="block text-sm font-bold">KLIK-MP Operator</span>

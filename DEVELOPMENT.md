@@ -40,6 +40,8 @@ Jangan membuat folder kosong. Import lintas feature wajib melalui `@/features/<f
 
 Page files tetap tipis. `IntakeWorkflow` mengorkestrasi slot public dari feature lain tanpa menghitung ulang identitas, berat, assessment, atau harga.
 
+Routing intake membaca sesi dari registry server in-memory. `/kiosk/intake/new` adalah satu-satunya entry pembuatan sesi; membuka UUID yang tidak terdaftar menghasilkan not-found. Server action feature memvalidasi setiap transisi sebelum registry diperbarui.
+
 ## Parallel ownership
 
 Workstream feature hanya mengubah:
@@ -128,7 +130,7 @@ Integration/database tests yang menulis data belum dibuat karena persistence sch
 
 ## Current known boundaries
 
-- Prisma persistence dan server authorization belum diimplementasikan.
+- Registry sesi masih in-memory dan hilang saat server restart; Prisma persistence dan server authorization belum diimplementasikan.
 - Demo membership/reference/transaction data adalah fixture development.
 - Atomic completion port pada composition UI belum menulis data.
 - Real device bridge belum diuji terhadap hardware/vendor final.

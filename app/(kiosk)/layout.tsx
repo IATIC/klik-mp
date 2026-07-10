@@ -9,7 +9,7 @@ export default function KioskLayout({
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex h-18 w-full max-w-[96rem] items-center justify-between px-5 sm:px-8 lg:px-10">
           <Link
-            href="/"
+            href="/kiosk"
             className="flex items-center gap-3 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
           >
             <span className="flex size-9 items-center justify-center rounded-lg bg-deep-teal text-white">

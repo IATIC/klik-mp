@@ -41,13 +41,19 @@ Setiap modul hanya diekspor melalui `features/<feature>/index.ts`. Detail arsite
 
 ## Routes
 
-- `/`: pemilihan mode kios atau operator.
-- `/intake`: membuat sesi intake development baru.
-- `/intake/[sessionId]`: workflow kios.
-- `/operator/review/[sessionId]`: review dan koreksi hasil AI.
-- `/operator/transactions`: daftar transaksi operator.
+- `/`: landing dan pemilihan mode.
+- `/kiosk`: beranda kios, pembuatan, dan kelanjutan sesi.
+- `/kiosk/intake/new`: membuat sesi DRAFT melalui server lalu redirect.
+- `/kiosk/intake/[sessionId]`: seluruh tahapan wizard intake.
+- `/kiosk/intake/[sessionId]/receipt`: receipt sesi completed.
+- `/operator`: dashboard petugas.
+- `/operator/intakes`: daftar intake.
+- `/operator/intakes/[sessionId]`: detail dan audit sesi.
 - `/operator/reference-prices`: pengelolaan referensi harga.
+- `/login`: entry autentikasi yang masih berupa placeholder.
 - `/api/devices/[capability]`: proxy server untuk device bridge nyata.
+
+Route lama `/intake/[sessionId]`, `/operator/transactions`, dan `/operator/review/[sessionId]` dipertahankan sebagai redirect sementara.
 
 ## Setup
 
@@ -96,7 +102,7 @@ npx prisma validate
 npx prisma generate
 ```
 
-Kebutuhan data setiap modul dicatat di `docs/contracts/`. Penyelesaian intake saat ini menghasilkan preview transaction/receipt/stock receipt melalui atomic port in-memory; persistence nyata harus ditambahkan dalam fase schema terkoordinasi sebelum production.
+Kebutuhan data setiap modul dicatat di `docs/contracts/`. Sesi dan receipt saat ini disimpan pada registry server in-memory agar routing dan server-controlled status dapat berjalan tanpa mengubah database. Data tersebut hilang ketika proses server restart dan harus diganti persistence nyata pada fase schema terkoordinasi.
 
 ## Status integrasi perangkat
 

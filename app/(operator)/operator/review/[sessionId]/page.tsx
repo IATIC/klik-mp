@@ -1,26 +1,10 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import {
-  createDemoAiReview,
-  OperatorReviewWorkspace,
-} from "@/features/operator-assistance";
-
-type OperatorReviewPageProps = {
+type LegacyReviewPageProps = {
   params: Promise<{ sessionId: string }>;
 };
 
-export const metadata: Metadata = {
-  title: "Review hasil AI",
-};
-
-export default async function OperatorReviewPage({
-  params,
-}: OperatorReviewPageProps) {
+export default async function LegacyReviewPage({ params }: LegacyReviewPageProps) {
   const { sessionId } = await params;
-
-  return (
-    <main className="mx-auto w-full max-w-5xl px-5 py-7 sm:px-8 lg:px-10">
-      <OperatorReviewWorkspace initialReview={createDemoAiReview(sessionId)} />
-    </main>
-  );
+  redirect(`/operator/intakes/${sessionId}`);
 }

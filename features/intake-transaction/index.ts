@@ -34,6 +34,11 @@ export {
   type KioskDeviceMode,
   type KioskIntakeExperienceProps,
 } from "./components/KioskIntakeExperience";
+export {
+  IntakeReceiptView,
+  IntakeSessionDetail,
+  IntakeSessionDirectory,
+} from "./components/RoutingViews";
 export type {
   CommodityAssessment,
   CommodityCapture,

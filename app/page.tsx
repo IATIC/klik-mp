@@ -14,22 +14,22 @@ export const metadata: Metadata = {
 
 const entryPoints = [
   {
-    href: "/intake",
+    href: "/kiosk",
     icon: ScanLine,
     eyebrow: "Kios mandiri",
     title: "Mulai penerimaan komoditas",
     description:
       "Verifikasi anggota, timbang komoditas, nilai kualitas, dan sepakati harga.",
-    action: "Buka kios",
+    action: "Masuk kios",
   },
   {
-    href: "/operator/transactions",
+    href: "/operator",
     icon: ShieldCheck,
     eyebrow: "Petugas koperasi",
     title: "Buka ruang operator",
     description:
       "Dampingi proses, tinjau hasil sistem, dan kelola transaksi penerimaan.",
-    action: "Buka operator",
+    action: "Masuk operator",
   },
 ] as const;
 
@@ -53,6 +53,9 @@ export default function Home() {
             <span className="size-2 rounded-full bg-accent-green" />
             Workflow MVP tersedia
           </span>
+          <Link href="/login" className="text-xs font-bold text-primary sm:ml-4">
+            Login
+          </Link>
         </header>
 
         <section className="grid flex-1 lg:grid-cols-[0.82fr_1.18fr]">

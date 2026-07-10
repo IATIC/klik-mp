@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, BadgeCheck, RadioTower, ReceiptText } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import {
@@ -42,19 +43,17 @@ import {
 import { Button } from "@/components/ui/button";
 
 import {
-  approveFinalIntake,
-  cancelIntake,
-  completeIntake,
-  createIntakeSession,
-  markMembershipReady,
-  markNegotiating,
-  recordAgreement,
-  recordCommodityAssessment,
-  recordCommodityCapture,
-  recordOfferCreated,
-  recordVerifiedSeller,
-  rejectIntake,
-} from "../services/intake";
+  agreePriceForSession,
+  approveIntakeForSession,
+  assessCommodityForSession,
+  beginNegotiationForSession,
+  cancelIntakeForSession,
+  captureCommodityForSession,
+  completeIntakeForSession,
+  createOfferForSession,
+  rejectOfferForSession,
+  verifySellerForSession,
+} from "../actions/session-actions";
 import type {
   IntakeCompletion,
   IntakeSession,
@@ -64,7 +63,7 @@ import { IntakeWorkflow } from "./IntakeWorkflow";
 export type KioskDeviceMode = "mock" | "real";
 
 export type KioskIntakeExperienceProps = {
-  sessionId: string;
+  initialSession: IntakeSession;
   deviceMode: KioskDeviceMode;
   membershipStatus: MembershipStatus;
   savingsRequiredAmount: number;
@@ -81,18 +80,43 @@ function uniqueId(prefix: string) {
   return `${prefix}-${id}`;
 }
 
-function auditContext(action: string) {
-  return {
-    auditId: uniqueId(action.toLowerCase()),
-    actorId: "kiosk-session",
-    occurredAt: new Date().toISOString(),
-  };
-}
-
 function negotiationContext(action: string) {
   return {
     historyId: uniqueId(action.toLowerCase()),
     occurredAt: new Date().toISOString(),
+  };
+}
+
+function restoreNegotiation(session: IntakeSession): NegotiationSession | null {
+  if (!session.price || !session.capture) return null;
+  const status =
+    session.status === "NEGOTIATING"
+      ? "NEGOTIATING"
+      : session.status === "AGREED" || session.status === "COMPLETED"
+        ? "ACCEPTED"
+        : "OFFER_CREATED";
+  const quantity = session.capture.netWeight;
+  return {
+    negotiationId: `restored-${session.sessionId}`,
+    referencePrice: session.price.referencePrice,
+    qualityFactor: session.price.qualityFactor,
+    quantity,
+    initialOffer: session.price.initialOffer,
+    currentUnitPrice: session.price.finalUnitPrice,
+    currentTotalPrice: session.price.finalTotalPrice,
+    buyerApproved: status === "ACCEPTED",
+    sellerApproved: status !== "OFFER_CREATED",
+    status,
+    history: [
+      {
+        id: `restored-${session.sessionId}`,
+        actor: "SYSTEM",
+        action: "INITIAL_OFFER_CREATED",
+        unitPrice: session.price.finalUnitPrice,
+        totalPrice: session.price.finalTotalPrice,
+        occurredAt: session.auditTrail.at(-1)?.occurredAt ?? new Date().toISOString(),
+      },
+    ],
   };
 }
 
@@ -113,16 +137,17 @@ function createMockMarketAdapter(): MarketPriceAdapter {
 }
 
 export function KioskIntakeExperience({
-  sessionId,
+  initialSession,
   deviceMode,
   membershipStatus,
   savingsRequiredAmount,
 }: KioskIntakeExperienceProps) {
-  const [session, setSession] = useState<IntakeSession>(() =>
-    createIntakeSession(sessionId),
-  );
+  const router = useRouter();
+  const [session, setSession] = useState<IntakeSession>(initialSession);
   const [negotiation, setNegotiation] =
-    useState<NegotiationSession | null>(null);
+    useState<NegotiationSession | null>(() =>
+      restoreNegotiation(initialSession),
+    );
   const [qualityFactor, setQualityFactor] = useState("1");
   const [counterPrice, setCounterPrice] = useState("");
   const [directPaymentReceived, setDirectPaymentReceived] = useState(false);
@@ -161,49 +186,31 @@ export function KioskIntakeExperience({
     );
   }
 
-  function handleVerifiedSeller(seller: VerifiedSeller) {
+  async function handleVerifiedSeller(seller: VerifiedSeller) {
     setError(null);
     try {
-      setSession((current) => {
-        const identified = recordVerifiedSeller(
-          current,
-          seller,
-          auditContext("identity-verified"),
-        );
-        return markMembershipReady(
-          identified,
-          auditContext("membership-ready"),
-        );
-      });
+      setSession(await verifySellerForSession(session.sessionId, seller));
     } catch (caught) {
       publishError(caught);
     }
   }
 
-  function handleCaptured(capture: CommodityCapture) {
+  async function handleCaptured(capture: CommodityCapture) {
     setError(null);
     try {
-      setSession((current) =>
-        recordCommodityCapture(
-          current,
-          capture,
-          auditContext("commodity-captured"),
-        ),
+      setSession(
+        await captureCommodityForSession(session.sessionId, capture),
       );
     } catch (caught) {
       publishError(caught);
     }
   }
 
-  function handleAssessed(assessment: CommodityAssessment) {
+  async function handleAssessed(assessment: CommodityAssessment) {
     setError(null);
     try {
-      setSession((current) =>
-        recordCommodityAssessment(
-          current,
-          assessment,
-          auditContext("commodity-assessed"),
-        ),
+      setSession(
+        await assessCommodityForSession(session.sessionId, assessment),
       );
     } catch (caught) {
       publishError(caught);
@@ -230,15 +237,13 @@ export function KioskIntakeExperience({
         occurredAt: new Date().toISOString(),
       });
 
+      const nextSession = await createOfferForSession(
+        session.sessionId,
+        toAgreedPrice(nextNegotiation),
+      );
       setNegotiation(nextNegotiation);
       setCounterPrice(String(nextNegotiation.currentUnitPrice));
-      setSession((current) =>
-        recordOfferCreated(
-          current,
-          toAgreedPrice(nextNegotiation),
-          auditContext("offer-created"),
-        ),
-      );
+      setSession(nextSession);
     } catch (caught) {
       publishError(caught);
     } finally {
@@ -246,7 +251,7 @@ export function KioskIntakeExperience({
     }
   }
 
-  function handleBuyerApproval() {
+  async function handleBuyerApproval() {
     if (!negotiation) return;
     setError(null);
     try {
@@ -255,14 +260,12 @@ export function KioskIntakeExperience({
           negotiation,
           negotiationContext("buyer-accepted-counter"),
         );
-        setNegotiation(accepted);
-        setSession((current) =>
-          recordAgreement(
-            current,
-            toAgreedPrice(accepted),
-            auditContext("price-agreed"),
-          ),
+        const nextSession = await agreePriceForSession(
+          session.sessionId,
+          toAgreedPrice(accepted),
         );
+        setNegotiation(accepted);
+        setSession(nextSession);
         return;
       }
 
@@ -277,7 +280,7 @@ export function KioskIntakeExperience({
     }
   }
 
-  function handleSellerAcceptance() {
+  async function handleSellerAcceptance() {
     if (!negotiation) return;
     setError(null);
     try {
@@ -285,20 +288,18 @@ export function KioskIntakeExperience({
         negotiation,
         negotiationContext("seller-accepted-offer"),
       );
-      setNegotiation(accepted);
-      setSession((current) =>
-        recordAgreement(
-          current,
-          toAgreedPrice(accepted),
-          auditContext("price-agreed"),
-        ),
+      const nextSession = await agreePriceForSession(
+        session.sessionId,
+        toAgreedPrice(accepted),
       );
+      setNegotiation(accepted);
+      setSession(nextSession);
     } catch (caught) {
       publishError(caught);
     }
   }
 
-  function handleSellerCounter() {
+  async function handleSellerCounter() {
     if (!negotiation) return;
     setError(null);
     try {
@@ -306,16 +307,15 @@ export function KioskIntakeExperience({
         ...negotiationContext("seller-countered"),
         unitPrice: Number(counterPrice),
       });
+      const nextSession = await beginNegotiationForSession(session.sessionId);
       setNegotiation(countered);
-      setSession((current) =>
-        markNegotiating(current, auditContext("negotiating")),
-      );
+      setSession(nextSession);
     } catch (caught) {
       publishError(caught);
     }
   }
 
-  function handleReject() {
+  async function handleReject() {
     if (!negotiation) return;
     setError(null);
     try {
@@ -324,24 +324,18 @@ export function KioskIntakeExperience({
         "SELLER",
         negotiationContext("seller-rejected"),
       );
+      const nextSession = await rejectOfferForSession(session.sessionId);
       setNegotiation(rejected);
-      setSession((current) =>
-        rejectIntake(current, auditContext("offer-rejected")),
-      );
+      setSession(nextSession);
     } catch (caught) {
       publishError(caught);
     }
   }
 
-  function handleFinalApproval(party: "BUYER" | "SELLER") {
+  async function handleFinalApproval(party: "BUYER" | "SELLER") {
     setError(null);
     try {
-      setSession((current) =>
-        approveFinalIntake(current, {
-          ...auditContext(`${party.toLowerCase()}-final-approval`),
-          party,
-        }),
-      );
+      setSession(await approveIntakeForSession(session.sessionId, party));
     } catch (caught) {
       publishError(caught);
     }
@@ -351,25 +345,14 @@ export function KioskIntakeExperience({
     setBusy(true);
     setError(null);
     try {
-      const result = await completeIntake(
-        session,
-        {
-          // Persistence is intentionally deferred until the coordinated DB phase.
-          async completeAtomically() {},
-        },
-        {
-          ...auditContext("intake-completed"),
-          transactionId: uniqueId("transaction"),
-          receiptNumber: uniqueId("receipt"),
-          stockReceiptId: uniqueId("stock"),
-        },
-        {
-          savingsRequiredAmount,
-          directPaymentReceived,
-        },
+      const result = await completeIntakeForSession(
+        session.sessionId,
+        savingsRequiredAmount,
+        directPaymentReceived,
       );
       setSession(result.session);
       setCompletion(result);
+      router.replace(`/kiosk/intake/${session.sessionId}/receipt`);
     } catch (caught) {
       publishError(caught);
     } finally {
@@ -377,12 +360,10 @@ export function KioskIntakeExperience({
     }
   }
 
-  function handleCancel() {
+  async function handleCancel() {
     setError(null);
     try {
-      setSession((current) =>
-        cancelIntake(current, auditContext("intake-cancelled")),
-      );
+      setSession(await cancelIntakeForSession(session.sessionId));
     } catch (caught) {
       publishError(caught);
     }
