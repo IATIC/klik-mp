@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,13 +48,12 @@ export default function WelcomePage() {
       {/* Content */}
       <div className="flex flex-col items-center gap-4 animate-foundation-in">
         {/* KLIK-MP logo */}
-        <Image
-          src="/assets/KLIK-MP_logo.png"
+        <img
+          src="/assets/KLIK-MP_logo.png?v=2"
           alt="KLIK-MP"
           width={180}
           height={180}
           className="h-auto w-[8.4rem] sm:w-[13.2rem]"
-          priority
         />
 
         <div className="mt-12 text-center">
