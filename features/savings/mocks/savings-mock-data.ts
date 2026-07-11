@@ -6,7 +6,7 @@ import type {
 import { MOCK_TRANSACTIONS } from "../constants/savings-constants";
 
 export const MOCK_MEMBER_ID = "AGT-0042";
-export const MOCK_MEMBER_NAME = "Siti Rahmawati";
+export const MOCK_MEMBER_NAME = "Budi Anggara";
 export const MOCK_MEMBER_NUMBER = "AGT-0042";
 
 export function createMockSummary(): SavingsSummary {

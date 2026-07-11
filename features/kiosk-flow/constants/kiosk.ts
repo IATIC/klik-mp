@@ -3,7 +3,7 @@ import type { Commodity, IdentityRecord } from "../types/kiosk-flow";
 export const DEMO_IDENTITY: IdentityRecord = {
   nik: "3273000000000042",
   memberNumber: "AGT-0042",
-  fullName: "Siti Rahmawati",
+  fullName: "Budi Anggara",
   birthPlace: "Bandung",
   birthDate: "1988-05-12",
   address: "Desa Sukamaju, Kecamatan Cibiru, Kota Bandung",

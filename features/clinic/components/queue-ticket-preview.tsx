@@ -135,7 +135,7 @@ export function TicketContent({ ticket }: { ticket: ClinicQueueTicket }) {
       <p className="text-xs text-muted-foreground">{ticket.location}</p>
       <div className="my-4 border-t border-dashed border-muted-foreground/20" />
       <p className="text-xs text-muted-foreground">
-        Nama: {ticket.serviceName.includes("Dokter") ? "Siti R." : "Anggota"}
+        Nama: {ticket.serviceName.includes("Dokter") ? "Budi A." : "Anggota"}
       </p>
       <p className="text-xs text-muted-foreground">
         No. Anggota: {maskMemberNumber("AGT-0042")}

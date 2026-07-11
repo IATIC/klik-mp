@@ -102,7 +102,7 @@ export const ERROR_MESSAGES = {
 export const MOCK_MEMBER = {
   memberId: "AGT-0042",
   memberNumber: "AGT-0042",
-  fullName: "Siti Rahmawati",
+  fullName: "Budi Anggara",
   nik: "3273014205890004",
   maskedNik: "3273••••••••0004",
   dateOfBirth: "10 Juli 1998",

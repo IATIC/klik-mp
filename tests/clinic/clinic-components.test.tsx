@@ -85,7 +85,7 @@ describe("ClinicServiceCard", () => {
 const mockMember: ClinicMemberInfo = {
   memberId: "AGT-0042",
   memberNumber: "AGT-0042",
-  fullName: "Siti Rahmawati",
+  fullName: "Budi Anggara",
   nik: "3273014205890004",
   maskedNik: "3273••••••••0004",
   dateOfBirth: "14-05-1989",
@@ -94,7 +94,7 @@ const mockMember: ClinicMemberInfo = {
 describe("PatientSummary", () => {
   it("menampilkan data pasien", () => {
     render(<PatientSummary member={mockMember} />);
-    expect(screen.getByText("Siti Rahmawati")).toBeInTheDocument();
+    expect(screen.getByText("Budi Anggara")).toBeInTheDocument();
     expect(screen.getByText("AGT-0042")).toBeInTheDocument();
     expect(screen.getByText(/3273/)).toBeInTheDocument();
     expect(screen.getByText("14-05-1989")).toBeInTheDocument();
@@ -179,7 +179,7 @@ describe("ApplicationReview", () => {
         documentsComplete={true}
       />,
     );
-    expect(screen.getByText("Siti Rahmawati")).toBeInTheDocument();
+    expect(screen.getByText("Budi Anggara")).toBeInTheDocument();
     expect(screen.getByText("AGT-0042")).toBeInTheDocument();
     expect(screen.getByText("Pemeriksaan Umum")).toBeInTheDocument();
     expect(screen.getByText("Sakit kepala")).toBeInTheDocument();

@@ -15,7 +15,7 @@ const MOCK_DUKCAPIL: Record<string, DukcapilRecord> = {
   },
   "3273123456789012": {
     nik: "3273123456789012",
-    namaLengkap: "Siti Nurjanah",
+    namaLengkap: "Budi Anggara",
     tempatLahir: "Cirebon",
     tanggalLahir: "1995-08-23",
     jenisKelamin: "P",

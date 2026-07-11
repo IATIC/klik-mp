@@ -163,7 +163,7 @@ DAFTAR PESERTA (halaman 1 dari 8):
 
 No  Nama                   Status      Tanda Tangan
 1.  Asep Sudrajat          Ketua       [TTD]
-2.  Siti Rahmawati         Anggota     [TTD]
+2.  Budi Anggara         Anggota     [TTD]
 3.  Dudung Abdulrahman     Anggota     [TTD]
 4.  Neneng Hasanah         Anggota     [TTD]
 5.  Cecep Supriadi         Anggota     [TTD]
@@ -342,7 +342,7 @@ RIWAYAT PRESENSI (halaman 1 dari 15)
 
 No  Nama                   Masuk         Keluar
 1.  Asep Sudrajat          08:45         16:15
-2.  Siti Rahmawati         08:50         16:20
+2.  Budi Anggara         08:50         16:20
 3.  Dudung Abdulrahman     09:00         16:10
 4.  Neneng Hasanah         08:55         16:25
 5.  Cecep Supriadi         09:10         16:05
