@@ -47,9 +47,6 @@ export function validateCounteroffer(
 ): string[] {
   const errors: string[] = [];
   if (!Number.isFinite(counteroffer) || counteroffer <= 0) errors.push("Masukkan harga negosiasi yang valid.");
-  if (counteroffer < currentOffer * 0.8 || counteroffer > currentOffer * 1.25) {
-    errors.push("Harga negosiasi harus berada dalam rentang 80%–125% dari penawaran.");
-  }
   if (reason.trim().length < 5) errors.push("Alasan negosiasi wajib diisi minimal 5 karakter.");
   return errors;
 }

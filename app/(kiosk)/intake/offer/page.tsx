@@ -7,7 +7,6 @@ import * as React from "react";
 import { KioskFooterActions } from "@/components/kiosk/kiosk-footer-actions";
 import { KioskPage } from "@/components/kiosk/kiosk-page";
 import { LoadingPanel } from "@/components/kiosk/loading-panel";
-import { NumericStepper } from "@/components/kiosk/numeric-stepper";
 import { Button } from "@/components/ui/button";
 import { pricingAdapter } from "@/lib/services/mock-pricing";
 import { receiptPrinterAdapter } from "@/lib/services/mock-receipt";
@@ -217,17 +216,28 @@ export default function OfferPage() {
             </p>
 
             <div className="space-y-5">
-              <NumericStepper
-                label="Harga negosiasi"
-                value={counteroffer}
-                onChange={(v) => {
-                  setCounteroffer(v);
-                  setErrors([]);
-                }}
-                step={10_000}
-                min={Math.round(savedOffer.total * 0.8)}
-                max={Math.round(savedOffer.total * 1.25)}
-              />
+              <div>
+                <label htmlFor="counteroffer" className="mb-2 block text-base font-bold">
+                  Harga negosiasi
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-muted-foreground">Rp</span>
+                  <input
+                    id="counteroffer"
+                    type="text"
+                    inputMode="numeric"
+                    value={counteroffer || ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      const num = raw ? parseInt(raw, 10) : 0;
+                      setCounteroffer(num);
+                      setErrors([]);
+                    }}
+                    placeholder="0"
+                    className="min-h-16 w-full rounded-xl border-2 border-border bg-background pl-12 pr-4 text-right text-2xl font-extrabold outline-none focus:border-primary focus:ring-4 focus:ring-ring/15"
+                  />
+                </div>
+              </div>
 
               <div>
                 <label htmlFor="reason" className="mb-2 block text-base font-bold">
