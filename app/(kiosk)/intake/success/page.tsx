@@ -120,6 +120,16 @@ export default function SuccessPage() {
             )}
           </div>
         </section>
+
+        {/* QR Code */}
+        <div className="flex flex-col items-center gap-3">
+          <img
+            src="/assets/Test%20QR.png"
+            alt="QR Code"
+            className="h-36 w-36 sm:h-44 sm:w-44"
+          />
+          <p className="text-sm text-muted-foreground">Scan untuk melihat detail transaksi</p>
+        </div>
       </div>
     </KioskPage>
   );
