@@ -7,7 +7,6 @@ const initialClinicFlowState: ClinicFlowState = {
   member: null,
   availableServices: [],
   selectedService: null,
-  phoneNumber: "",
   complaintSummary: "",
   documentRequirements: [],
   consentAccepted: false,
@@ -38,8 +37,6 @@ function clinicFlowReducer(
       return { ...state, availableServices: action.services };
     case "SELECT_SERVICE":
       return { ...state, selectedService: action.service };
-    case "SET_PHONE_NUMBER":
-      return { ...state, phoneNumber: action.phoneNumber };
     case "SET_COMPLAINT_SUMMARY":
       return { ...state, complaintSummary: action.complaintSummary };
     case "SET_DOCUMENT_REQUIREMENTS":

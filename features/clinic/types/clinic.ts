@@ -55,7 +55,6 @@ export interface DocumentRequirement {
 
 export interface ClinicApplicationInput {
   memberId: string;
-  phoneNumber: string;
   serviceId: string;
   complaintSummary: string;
   documentRequirements: DocumentRequirement[];
@@ -131,7 +130,6 @@ export interface ClinicFlowState {
   member: ClinicMemberInfo | null;
   availableServices: ClinicServiceItem[];
   selectedService: ClinicServiceItem | null;
-  phoneNumber: string;
   complaintSummary: string;
   documentRequirements: DocumentRequirement[];
   consentAccepted: boolean;
@@ -155,7 +153,6 @@ export type ClinicFlowAction =
   | { type: "SET_MEMBER"; member: ClinicMemberInfo }
   | { type: "SET_AVAILABLE_SERVICES"; services: ClinicServiceItem[] }
   | { type: "SELECT_SERVICE"; service: ClinicServiceItem }
-  | { type: "SET_PHONE_NUMBER"; phoneNumber: string }
   | { type: "SET_COMPLAINT_SUMMARY"; complaintSummary: string }
   | { type: "SET_DOCUMENT_REQUIREMENTS"; requirements: DocumentRequirement[] }
   | { type: "TOGGLE_DOCUMENT"; documentId: string }

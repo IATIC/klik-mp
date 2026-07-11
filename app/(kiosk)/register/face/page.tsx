@@ -1,47 +1,33 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { ArrowLeft, Camera, CheckCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { KioskFooterActions } from "@/components/kiosk/kiosk-footer-actions";
 import { KioskPage } from "@/components/kiosk/kiosk-page";
 import { useKioskFlow } from "@/features/kiosk-flow";
-import { cameraAdapter } from "@/lib/devices/camera";
-
-type FaceStatus = "idle" | "capturing" | "success" | "failed";
+import { FaceLivenessDetector } from "@/features/identity-membership";
 
 export default function RegisterFacePage() {
   const router = useRouter();
   const { dispatch, state } = useKioskFlow();
-  const [status, setStatus] = useState<FaceStatus>("idle");
+  const [captured, setCaptured] = useState(state.registration.faceCaptured);
   const [error, setError] = useState<string | null>(null);
 
-  const faceCaptured = state.registration.faceCaptured || status === "success";
+  function handleSuccess() {
+    dispatch({ type: "SET_FACE_CAPTURED", captured: true });
+    setCaptured(true);
+  }
 
-  const handleCapture = useCallback(async () => {
-    if (status === "capturing") return;
+  function handleError(msg: string) {
+    setError(msg);
+  }
 
-    setStatus("capturing");
-    setError(null);
-
-    try {
-      const result = await cameraAdapter.captureFace();
-
-      if (!result.ok) {
-        setStatus("failed");
-        setError(result.error);
-        return;
-      }
-
-      dispatch({ type: "SET_FACE_CAPTURED", captured: true });
-      setStatus("success");
-    } catch {
-      setStatus("failed");
-      setError("Kamera tidak merespons. Silakan coba lagi.");
-    }
-  }, [status, dispatch]);
+  function handleBack() {
+    router.push("/register/identity");
+  }
 
   return (
     <KioskPage
@@ -54,7 +40,7 @@ export default function RegisterFacePage() {
             <Button
               variant="outline"
               size="kiosk"
-              onClick={() => router.push("/register/identity")}
+              onClick={handleBack}
             >
               <ArrowLeft aria-hidden="true" className="size-5" />
               Kembali
@@ -63,7 +49,7 @@ export default function RegisterFacePage() {
           end={
             <Button
               size="kiosk"
-              disabled={!faceCaptured}
+              disabled={!captured}
               onClick={() => router.push("/register/password")}
             >
               Lanjutkan
@@ -78,56 +64,34 @@ export default function RegisterFacePage() {
         </h1>
 
         <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg">
-          Ambil foto wajah Anda untuk verifikasi identitas. Pastikan wajah
-          terlihat jelas dan pencahayaan cukup.
+          Arahkan wajah ke kamera dan tahan selama 3 detik untuk verifikasi
+          identitas.
         </p>
 
-        <div className="flex w-full max-w-sm items-center justify-center rounded-3xl border-2 border-dashed border-border bg-surface py-16 sm:py-20">
-          {faceCaptured ? (
-            <span className="flex flex-col items-center gap-3">
-              <CheckCircle
-                aria-hidden="true"
-                className="size-16 text-green-600"
-                strokeWidth={1.5}
-              />
-              <span className="text-base font-bold text-green-700">
-                Foto berhasil diambil
-              </span>
-            </span>
-          ) : (
-            <Camera
+        {captured ? (
+          <div className="flex w-full max-w-sm flex-col items-center gap-4 rounded-3xl border-2 border-green-200 bg-green-50 py-16 sm:py-20">
+            <CheckCircle
               aria-hidden="true"
-              className="size-16 text-muted-foreground/50"
-              strokeWidth={1.2}
+              className="size-16 text-green-600"
+              strokeWidth={1.5}
             />
-          )}
-        </div>
-
-        {status === "failed" ? (
-          <div className="flex flex-col items-center gap-3">
-            <p className="text-sm font-medium text-destructive">{error}</p>
-            <Button variant="outline" size="kiosk" onClick={handleCapture}>
-              <RefreshCw aria-hidden="true" className="size-5" />
-              Coba lagi
-            </Button>
+            <span className="text-base font-bold text-green-700">
+              Foto berhasil diambil
+            </span>
           </div>
         ) : (
-          <Button
-            size="kiosk"
-            className="min-w-64 sm:min-w-72"
-            disabled={status === "capturing" || faceCaptured}
-            onClick={handleCapture}
-          >
-            {status === "capturing" ? (
-              <>Mengambil foto…</>
-            ) : (
-              <>
-                <Camera aria-hidden="true" className="size-5" />
-                Ambil foto
-              </>
-            )}
-          </Button>
+          <div className="w-full max-w-sm">
+            <FaceLivenessDetector
+              onSuccess={handleSuccess}
+              onError={handleError}
+              onBack={handleBack}
+            />
+          </div>
         )}
+
+        {error ? (
+          <p className="text-sm font-medium text-destructive">{error}</p>
+        ) : null}
       </div>
     </KioskPage>
   );

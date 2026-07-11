@@ -100,16 +100,6 @@ describe("PatientSummary", () => {
     expect(screen.getByText("14-05-1989")).toBeInTheDocument();
   });
 
-  it("menampilkan nomor telepon jika diberikan", () => {
-    render(<PatientSummary member={mockMember} phoneNumber="081234567890" />);
-    expect(screen.getByText("Nomor Kontak")).toBeInTheDocument();
-  });
-
-  it("tidak menampilkan nomor telepon jika tidak diberikan", () => {
-    render(<PatientSummary member={mockMember} />);
-    expect(screen.queryByText("Nomor Kontak")).not.toBeInTheDocument();
-  });
-
   it("mask NIK tidak menampilkan NIK lengkap", () => {
     render(<PatientSummary member={mockMember} />);
     expect(screen.queryByText("3273014205890004")).not.toBeInTheDocument();
@@ -184,7 +174,6 @@ describe("ApplicationReview", () => {
     render(
       <ApplicationReview
         member={mockMember}
-        phoneNumber="081234567890"
         serviceName="Pemeriksaan Umum"
         complaintSummary="Sakit kepala"
         documentsComplete={true}
@@ -201,7 +190,6 @@ describe("ApplicationReview", () => {
     render(
       <ApplicationReview
         member={mockMember}
-        phoneNumber="081234567890"
         serviceName="Pemeriksaan Umum"
         complaintSummary="Sakit kepala"
         documentsComplete={false}
@@ -214,7 +202,6 @@ describe("ApplicationReview", () => {
     render(
       <ApplicationReview
         member={mockMember}
-        phoneNumber="081234567890"
         serviceName="Pemeriksaan Umum"
         complaintSummary="Sakit kepala"
         documentsComplete={true}

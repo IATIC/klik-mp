@@ -9,8 +9,8 @@ export { CLINIC_CONSTANTS, MOCK_SERVICES, MOCK_DOCUMENT_REQUIREMENTS, MOCK_MEMBE
   from "./constants/clinic-constants";
 
 // Validations
-export { maskNik, maskPhoneNumber, maskMemberNumber,
-         validatePhoneNumber, validateComplaintSummary, validateConsent,
+export { maskNik, maskMemberNumber,
+         validateComplaintSummary, validateConsent,
          validateRequiredDocuments, isReadyToSubmit }
   from "./validations/clinic-validation";
 

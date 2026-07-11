@@ -10,27 +10,9 @@ export function maskNik(nik: string): string {
   return nik.slice(0, 4) + "••••••••" + nik.slice(-4);
 }
 
-export function maskPhoneNumber(phone: string): string {
-  if (phone.length < 6) return phone;
-  return phone.slice(0, 4) + "••••" + phone.slice(-4);
-}
-
 export function maskMemberNumber(number: string): string {
   if (number.length < 4) return number;
   return "••••" + number.slice(-4);
-}
-
-// ── Phone validation ──
-
-export function validatePhoneNumber(phone: string): ValidationResult {
-  const cleaned = phone.replace(/\s/g, "");
-  if (!cleaned || cleaned.length === 0) {
-    return { valid: false, error: ERROR_MESSAGES.PHONE_REQUIRED };
-  }
-  if (!/^\+?\d{10,15}$/.test(cleaned)) {
-    return { valid: false, error: ERROR_MESSAGES.PHONE_INVALID };
-  }
-  return { valid: true };
 }
 
 // ── Complaint validation ──
@@ -80,10 +62,9 @@ export function validateRequiredDocuments(
 }
 
 export function isReadyToSubmit(
-  phoneValid: boolean,
   complaintValid: boolean,
   documentsComplete: boolean,
   consentAccepted: boolean,
 ): boolean {
-  return phoneValid && complaintValid && documentsComplete && consentAccepted;
+  return complaintValid && documentsComplete && consentAccepted;
 }
