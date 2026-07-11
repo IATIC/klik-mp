@@ -1,111 +1,164 @@
-# KLIK-MP
+# KLIK-MP — Kios Layanan Integrasi Koperasi Merah Putih
 
-Kios Layanan Integrasi Koperasi Merah Putih. MVP menyatukan verifikasi anggota, penimbangan dan foto, assessment komoditas berbantuan AI, negosiasi harga, persetujuan akhir, serta pendampingan operator.
+> **Demo:** [https://klik-mp.vercel.app](https://klik-mp.vercel.app)
 
-## Alur MVP
+MVP kios digital untuk Koperasi Merah Putih — anggota menjual komoditas hasil bumi dengan proses yang terintegrasi: identitas, timbangan, assessment AI, negosiasi harga, hingga receipt.
 
-```text
-DRAFT
--> IDENTITY_VERIFIED
--> MEMBERSHIP_READY
--> COMMODITY_CAPTURED
--> COMMODITY_ASSESSED
--> OFFER_CREATED
--> NEGOTIATING
--> AGREED
--> COMPLETED
-```
+---
 
-Penawaran dapat berakhir `REJECTED`. Semua sesi yang belum selesai dapat dibatalkan secara aman menjadi `CANCELLED` selama transisinya masih diizinkan.
+## 🧭 Walkthrough untuk Juri
 
-Keputusan produk yang diterapkan:
+### 1. Landing Page (`/`)
+Pilih **Mode Kios** untuk memulai. Anda datang sebagai anggota koperasi yang ingin menjual komoditas.
 
-- Penjual wajib menjadi anggota.
-- Nonanggota menyelesaikan simpanan pokok melalui pembayaran langsung atau pemotongan margin transaksi.
-- Kios dapat digunakan mandiri atau didampingi petugas.
-- Harga final membutuhkan persetujuan pembeli dan penjual.
-- Penjual dapat mengajukan counteroffer.
-- Koreksi hasil sistem wajib menyimpan alasan dan audit petugas.
-- SIMKOPDES dan CoopTrade tidak termasuk MVP.
+### 2. Login / Registrasi
+- **Anggota baru**: daftar via NIK + password. Data penduduk diverifikasi secara simulasi.
+- **Anggota existing**: login via NIK dan password.
+- Tersedia juga opsi **Fingerprint** dan **Face Recognition** (simulasi mock — tidak butuh hardware).
 
-## Modul
+### 3. Beranda Kios (`/kiosk`)
+Lihat status keanggotaan dan simpanan. Pilih **"Jual Komoditas"** untuk memulai transaksi intake.
 
-- `identity-membership`: fingerprint, face recognition, identity matching, dan kesiapan keanggotaan.
-- `commodity-capture`: timbangan, gross/tare/net, kamera, dan validasi kualitas foto.
-- `commodity-assessment`: klasifikasi komoditas, grade, confidence, review, dan koreksi AI.
-- `pricing-negotiation`: referensi pasar, faktor kualitas, approval, counteroffer, dan riwayat harga.
-- `intake-transaction`: orkestrasi status, final approval, settlement simpanan, receipt, dan stock receipt.
-- `operator-assistance`: review AI, audit trail, daftar transaksi, dan referensi harga.
+### 4. Pemilihan Komoditas (`/intake/commodity`)
+Pilih jenis komoditas yang akan dijual.
 
-Setiap modul hanya diekspor melalui `features/<feature>/index.ts`. Detail arsitektur tersedia di [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+### 5. Penimbangan & Foto (`/intake/capture`)
+- Masukkan **berat kotor (gross)** dan **berat wadah (tare)** — sistem otomatis menghitung berat bersih (net).
+- Ambil foto komoditas (menggunakan kamera browser atau simulasi).
 
-## Routes
+### 6. Assessment Komoditas (`/intake/assessment`)
+Sistem AI (simulasi) menilai grade komoditas berdasarkan foto. Anda bisa **setujui** atau **koreksi** hasil assessment.
 
-- `/`: landing dan pemilihan mode.
-- `/kiosk`: beranda kios, pembuatan, dan kelanjutan sesi.
-- `/kiosk/intake/new`: membuat sesi DRAFT melalui server lalu redirect.
-- `/kiosk/intake/[sessionId]`: seluruh tahapan wizard intake.
-- `/kiosk/intake/[sessionId]/receipt`: receipt sesi completed.
-- `/operator`: dashboard petugas.
-- `/operator/intakes`: daftar intake.
-- `/operator/intakes/[sessionId]`: detail dan audit sesi.
-- `/operator/reference-prices`: pengelolaan referensi harga.
-- `/login`: entry autentikasi yang masih berupa placeholder.
-- `/api/devices/[capability]`: proxy server untuk device bridge nyata.
+### 7. Penawaran & Negosiasi Harga (`/intake/offer`)
+- Sistem memberikan **penawaran awal** berdasarkan grade dan harga pasar.
+- Anda bisa **Terima** langsung, atau **Ajukan harga sendiri** — ketik bebas angka yang diinginkan + alasan.
+- Petugas koperasi (di sisi operator) akan mereview dan menyetujui.
 
-Route lama `/intake/[sessionId]`, `/operator/transactions`, dan `/operator/review/[sessionId]` dipertahankan sebagai redirect sementara.
+### 8. Transaksi Berhasil (`/intake/success`)
+Receipt lengkap dengan detail transaksi dan **QR Code** untuk verifikasi.
 
-## Setup
+---
 
-Requirements: Node.js 20.19+ atau 22.12+, npm 10+, dan PostgreSQL connection string ketika data persistence mulai diaktifkan.
+### 🖥️ Mode Operator
+Selain mode kios (anggota), terdapat **Mode Petugas** untuk operator koperasi:
 
-```powershell
+- **Dashboard** (`/operator`) — ringkasan transaksi.
+- **Daftar Intake** (`/operator/intakes`) — semua transaksi yang masuk.
+- **Review & Audit** (`/operator/intakes/[sessionId]`) — lihat detail, riwayat negosiasi, dan setujui/tolak.
+- **Referensi Harga** (`/operator/reference-prices`) — kelola harga pasar acuan.
+
+---
+
+## 🚀 Menjalankan di Lokal
+
+```bash
+# 1. Clone repo
+git clone https://github.com/IATIC/klik-mp.git
+cd klik-mp
+
+# 2. Install dependencies
 npm install
-Copy-Item .env.example .env.local
+
+# 3. Salin environment variables
+cp .env.example .env.local
+
+# 4. Jalankan dev server
 npm run dev
 ```
 
-Buka `http://localhost:3000`.
+Buka **http://localhost:3000**. Semua data menggunakan mock — tidak perlu database atau hardware.
 
-### Device mode
+### Environment Variables (wajib di `.env.local`)
 
-`DEVICE_MODE="mock"` hanya untuk development/test. Mode ini memberikan adapter deterministik agar alur lintas modul dapat didemokan dan diuji tanpa perangkat.
-
-`DEVICE_MODE="real"` memakai adapter nyata:
-
-- Fingerprint dan face recognition melalui server-side device bridge.
-- Timbangan melalui HTTP device bridge; adapter Web Serial generik juga tersedia.
-- Kamera melalui `getUserMedia` browser.
-- Commodity vision dan market price melalui device bridge.
-
-Production selalu memilih mode real. Kegagalan perangkat nyata tidak pernah dialihkan diam-diam ke mock. Kontrak bridge dan acceptance gate ada di [docs/DEVICE_BRIDGE.md](docs/DEVICE_BRIDGE.md).
-
-## Verification
-
-```powershell
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-npm run test:e2e
-npm run verify
+```env
+DEVICE_MODE=mock
+DEMO_MEMBERSHIP_STATUS=PENDING_PAYMENT
+NEXT_PUBLIC_KOPERASI_INFO="Koperasi Desa Kebonturi, Kecamatan Arjawinangun, Kabupaten Cirebon, Jawa Barat"
 ```
 
-`npm run verify` menjalankan lint, typecheck, Vitest, dan production build. E2E dijalankan terpisah karena membutuhkan development server dan Chromium.
+---
 
-## Prisma dan persistence boundary
+## 🏗️ Tech Stack
 
-Schema Prisma yang berisi 27 model domain tetap dipertahankan tanpa perubahan. Fase ini tidak membuat migration, seed, atau operasi tulis database.
+| Layer | Teknologi |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Bahasa | TypeScript strict |
+| Styling | Tailwind CSS v4 |
+| UI | shadcn/ui + Lucide icons |
+| Form | React Hook Form + Zod |
+| Database (future) | Prisma ORM + PostgreSQL |
+| Testing | Vitest + Playwright |
+| Deploy | Vercel (free tier) |
 
-```powershell
-npx prisma validate
-npx prisma generate
+---
+
+## 📦 Fitur per Modul
+
+| Modul | Deskripsi | Status |
+|---|---|---|
+| **identity-membership** | Fingerprint, face recognition, matching identitas | ✅ Mock adapters |
+| **commodity-capture** | Timbangan (gross/tare/net), kamera, validasi foto | ✅ Mock + Web Serial |
+| **commodity-assessment** | Klasifikasi AI, grade, confidence, koreksi | ✅ Mock + HTTP bridge |
+| **pricing-negotiation** | Harga pasar, counteroffer, approval, riwayat | ✅ Mock + HTTP bridge |
+| **intake-transaction** | Status engine, final approval, receipt | ✅ Full |
+| **operator-assistance** | Dashboard, review, audit trail, referensi harga | ✅ Full |
+| **savings** | Simpanan anggota (wajib, pokok, sukarela) | ✅ Full |
+| **clinic** | Klinik desa — antrian, registrasi pasien | ✅ Full |
+| **pinjaman** | Pengajuan pembiayaan | ✅ UI + service |
+| **rapat-anggota-tahunan** | RAT — kehadiran, laporan | ✅ UI |
+| **erat** | Dashboard ERAT (E-Rencana Aktivitas Tahunan) | ✅ UI placeholder |
+
+---
+
+## 🧪 Scripts
+
+```bash
+npm run dev          # Development server
+npm run build        # Production build
+npm run lint         # ESLint
+npm run typecheck    # TypeScript check
+npm run test         # Vitest
+npm run test:e2e     # Playwright E2E
+npm run verify       # lint + typecheck + test + build
 ```
 
-Kebutuhan data setiap modul dicatat di `docs/contracts/`. Sesi dan receipt saat ini disimpan pada registry server in-memory agar routing dan server-controlled status dapat berjalan tanpa mengubah database. Data tersebut hilang ketika proses server restart dan harus diganti persistence nyata pada fase schema terkoordinasi.
+---
 
-## Status integrasi perangkat
+## 🔌 Arsitektur
 
-Adapter dan protokol nyata sudah tersedia, tetapi kompatibilitas perangkat final belum dapat disahkan tanpa model hardware, vendor SDK, OS kios, endpoint/model AI, serta pengujian fisik. Mock bukan bukti hardware readiness.
+```
+app/                    # Next.js App Router — halaman + API routes
+├── (kiosk)/            # Route group untuk kios anggota
+├── (operator)/         # Route group untuk operator
+├── api/devices/        # Device bridge proxy
+├── page.tsx            # Landing page
+features/               # Modul bisnis terisolasi
+├── <feature>/
+│   ├── components/     # UI components
+│   ├── services/       # Business logic
+│   ├── actions/        # Server Actions
+│   ├── adapters/       # Hardware adapters (mock + real)
+│   ├── schemas/        # Zod validations
+│   └── index.ts        # Public API
+components/             # Shared UI components
+lib/                    # Utilities, auth, device abstractions
+docs/                   # Dokumentasi arsitektur & kontrak
+```
 
-Lihat [DEVELOPMENT.md](DEVELOPMENT.md) untuk aturan parallel workstream, testing, dan langkah integrasi berikutnya.
+Detail lebih lanjut: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+---
+
+## 📋 Status MVP
+
+- ✅ **Semua alur end-to-end** dapat didemokan tanpa hardware fisik.
+- ✅ **Mock adapter** untuk fingerprint, face recognition, timbangan, kamera, AI vision, dan market price.
+- ✅ **Device bridge protocol** siap untuk integrasi hardware nyata.
+- ✅ **Server Actions** untuk validasi server-side (Zod + authorization).
+- ⏳ **Database persistence** — Prisma schema siap, migration hanya saat scope final disetujui.
+- ⏳ **Hardware integration** — adapter siap, butuh pengujian fisik.
+
+---
+
+Dibangun untuk **Hackathon Koperasi Merah Putih** — tim IATIC.
