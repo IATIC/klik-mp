@@ -21,7 +21,7 @@ export default function ClinicReviewPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Redirect if required data is missing
-  if (!state.selectedService || !state.member || !state.phoneNumber) {
+  if (!state.selectedService || !state.member) {
     return (
       <KioskPage
         footer={
@@ -74,7 +74,6 @@ export default function ClinicReviewPage() {
       // Submit application and get ticket
       const ticket = await clinicService.submitApplication({
         memberId: state.member!.memberId,
-        phoneNumber: state.phoneNumber,
         serviceId: state.selectedService!.id,
         complaintSummary: state.complaintSummary,
         documentRequirements: state.documentRequirements,
@@ -154,7 +153,6 @@ export default function ClinicReviewPage() {
         {/* Review card */}
         <ApplicationReview
           member={state.member}
-          phoneNumber={state.phoneNumber}
           serviceName={state.selectedService.name}
           complaintSummary={state.complaintSummary}
           documentsComplete={state.applicationStatus === "READY_TO_SUBMIT"}

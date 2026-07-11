@@ -64,14 +64,6 @@ describe("clinicFlowReducer", () => {
     expect(state.member).toEqual(mockMember);
   });
 
-  it("menangani SET_PHONE_NUMBER", () => {
-    const state = clinicFlowReducer(initialClinicFlowState, {
-      type: "SET_PHONE_NUMBER",
-      phoneNumber: "081234567890",
-    });
-    expect(state.phoneNumber).toBe("081234567890");
-  });
-
   it("menangani SET_COMPLAINT_SUMMARY", () => {
     const state = clinicFlowReducer(initialClinicFlowState, {
       type: "SET_COMPLAINT_SUMMARY",
@@ -135,11 +127,10 @@ describe("clinicFlowReducer", () => {
 
   it("mereset semua state pada RESET_FLOW setelah modifikasi", () => {
     const modified = clinicFlowReducer(initialClinicFlowState, {
-      type: "SET_PHONE_NUMBER",
-      phoneNumber: "081234567890",
+      type: "SET_COMPLAINT_SUMMARY",
+      complaintSummary: "test",
     });
     const state = clinicFlowReducer(modified, { type: "RESET_FLOW" });
-    expect(state.phoneNumber).toBe("");
     expect(state.selectedService).toBeNull();
     expect(state.member).toBeNull();
     expect(state.queueTicket).toBeNull();

@@ -5,8 +5,6 @@ import type { DocumentRequirement, ClinicServiceItem } from "../types/clinic";
 export const MOCK_DELAY_MS = 280;
 
 export const CLINIC_CONSTANTS = {
-  MIN_PHONE_LENGTH: 10,
-  MAX_PHONE_LENGTH: 15,
   MIN_COMPLAINT_LENGTH: 5,
   MAX_COMPLAINT_LENGTH: 500,
   QUEUE_PREFIX: "A",
@@ -34,12 +32,6 @@ export const MOCK_DOCUMENT_REQUIREMENTS: Omit<DocumentRequirement, "available">[
     id: "identity",
     label: "Identitas anggota",
     description: "Kartu anggota / KTP",
-    status: "AVAILABLE",
-  },
-  {
-    id: "contact",
-    label: "Nomor kontak",
-    description: "Nomor telepon yang dapat dihubungi",
     status: "AVAILABLE",
   },
   {
@@ -95,8 +87,6 @@ export const SUCCESS_MESSAGES = {
 // ── Error messages ──
 
 export const ERROR_MESSAGES = {
-  PHONE_REQUIRED: "Nomor kontak wajib diisi.",
-  PHONE_INVALID: "Masukkan nomor telepon yang valid (10-15 angka).",
   COMPLAINT_REQUIRED: "Ringkasan keluhan wajib diisi.",
   COMPLAINT_INVALID: "Ringkasan keluhan tidak boleh hanya berisi spasi.",
   COMPLAINT_TOO_SHORT: "Ringkasan keluhan minimal 5 karakter.",

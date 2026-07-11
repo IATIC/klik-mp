@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   maskNik,
-  maskPhoneNumber,
   maskMemberNumber,
-  validatePhoneNumber,
   validateComplaintSummary,
   validateConsent,
   validateRequiredDocuments,
@@ -26,20 +24,6 @@ describe("maskNik", () => {
   });
 });
 
-describe("maskPhoneNumber", () => {
-  it("menampilkan 4 digit pertama dan 4 digit terakhir", () => {
-    expect(maskPhoneNumber("081234567890")).toBe("0812••••7890");
-  });
-
-  it("menangani nomor pendek", () => {
-    expect(maskPhoneNumber("081")).toBe("081");
-  });
-
-  it("mengembalikan string kosong untuk input kosong", () => {
-    expect(maskPhoneNumber("")).toBe("");
-  });
-});
-
 describe("maskMemberNumber", () => {
   it("menampilkan 4 digit terakhir saja", () => {
     expect(maskMemberNumber("AGT-0042")).toBe("••••0042");
@@ -51,45 +35,6 @@ describe("maskMemberNumber", () => {
 
   it("mengembalikan string kosong untuk input kosong", () => {
     expect(maskMemberNumber("")).toBe("");
-  });
-});
-
-describe("validatePhoneNumber", () => {
-  it("menerima nomor telepon valid diawali 08", () => {
-    expect(validatePhoneNumber("081234567890")).toEqual({ valid: true });
-  });
-
-  it("menerima nomor telepon dengan 10-15 digit", () => {
-    expect(validatePhoneNumber("0812345678")).toEqual({ valid: true });
-  });
-
-  it("menerima nomor dengan + prefix", () => {
-    expect(validatePhoneNumber("+6281234567890")).toEqual({ valid: true });
-  });
-
-  it("menolak nomor terlalu pendek", () => {
-    const result = validatePhoneNumber("08123");
-    expect(result.valid).toBe(false);
-  });
-
-  it("menolak nomor terlalu panjang", () => {
-    const result = validatePhoneNumber("081234567890123456");
-    expect(result.valid).toBe(false);
-  });
-
-  it("menolak input kosong", () => {
-    const result = validatePhoneNumber("");
-    expect(result.valid).toBe(false);
-  });
-
-  it("menolak input hanya spasi", () => {
-    const result = validatePhoneNumber("   ");
-    expect(result.valid).toBe(false);
-  });
-
-  it("menolak nomor dengan karakter non-digit", () => {
-    const result = validatePhoneNumber("0812345abcd");
-    expect(result.valid).toBe(false);
   });
 });
 
@@ -178,22 +123,18 @@ describe("validateRequiredDocuments", () => {
 
 describe("isReadyToSubmit", () => {
   it("mengembalikan true jika semua kondisi terpenuhi", () => {
-    expect(isReadyToSubmit(true, true, true, true)).toBe(true);
-  });
-
-  it("mengembalikan false jika phone tidak valid", () => {
-    expect(isReadyToSubmit(false, true, true, true)).toBe(false);
+    expect(isReadyToSubmit(true, true, true)).toBe(true);
   });
 
   it("mengembalikan false jika complaint tidak valid", () => {
-    expect(isReadyToSubmit(true, false, true, true)).toBe(false);
+    expect(isReadyToSubmit(false, true, true)).toBe(false);
   });
 
   it("mengembalikan false jika dokumen belum lengkap", () => {
-    expect(isReadyToSubmit(true, true, false, true)).toBe(false);
+    expect(isReadyToSubmit(true, false, true)).toBe(false);
   });
 
   it("mengembalikan false jika consent belum disetujui", () => {
-    expect(isReadyToSubmit(true, true, true, false)).toBe(false);
+    expect(isReadyToSubmit(true, true, false)).toBe(false);
   });
 });

@@ -8,16 +8,12 @@ import { KioskFooterActions } from "@/components/kiosk/kiosk-footer-actions";
 import { Button } from "@/components/ui/button";
 import { useClinicFlow } from "@/features/clinic/context/clinic-flow-context";
 import { PatientSummary } from "@/features/clinic/components/patient-summary";
-import {
-  validatePhoneNumber,
-  validateComplaintSummary,
-} from "@/features/clinic/validations/clinic-validation";
+import { validateComplaintSummary } from "@/features/clinic/validations/clinic-validation";
 import { CLINIC_CONSTANTS, ERROR_MESSAGES } from "@/features/clinic/constants/clinic-constants";
 
 export default function ClinicApplicationPage() {
   const router = useRouter();
   const { state, dispatch } = useClinicFlow();
-const [phoneNumber, setPhoneNumber] = useState(state.phoneNumber);
 const [complaintSummary, setComplaintSummary] = useState(state.complaintSummary);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -61,16 +57,6 @@ const [complaintSummary, setComplaintSummary] = useState(state.complaintSummary)
   const handleSubmit = () => {
     const newErrors: Record<string, string> = {};
 
-    // Validate phone number
-    if (!phoneNumber.trim()) {
-      newErrors.phoneNumber = ERROR_MESSAGES.PHONE_REQUIRED;
-    } else {
-      const phoneValidation = validatePhoneNumber(phoneNumber.trim());
-      if (!phoneValidation.valid) {
-        newErrors.phoneNumber = phoneValidation.error ?? ERROR_MESSAGES.PHONE_INVALID;
-      }
-    }
-
     // Validate complaint
     const complaintValidation = validateComplaintSummary(complaintSummary.trim());
     if (!complaintValidation.valid) {
@@ -81,7 +67,6 @@ const [complaintSummary, setComplaintSummary] = useState(state.complaintSummary)
 
     if (Object.keys(newErrors).length > 0) return;
 
-    dispatch({ type: "SET_PHONE_NUMBER", phoneNumber: phoneNumber.trim() });
     dispatch({ type: "SET_COMPLAINT_SUMMARY", complaintSummary: complaintSummary.trim() });
 
     router.push("/clinic/documents");
@@ -138,47 +123,6 @@ const [complaintSummary, setComplaintSummary] = useState(state.complaintSummary)
         {state.member && (
           <PatientSummary member={state.member} />
         )}
-
-        {/* Phone number */}
-        <section className="space-y-3">
-          <label htmlFor="phone" className="text-base font-extrabold sm:text-lg">
-            Nomor Kontak
-            <span className="text-red-500">*</span>
-          </label>
-          <p className="text-sm text-muted-foreground">
-            Nomor yang bisa dihubungi untuk konfirmasi
-          </p>
-          <input
-            id="phone"
-            type="tel"
-            inputMode="numeric"
-            value={phoneNumber}
-            onChange={(e) => {
-              setPhoneNumber(e.target.value);
-              if (errors.phoneNumber) {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.phoneNumber;
-                  return next;
-                });
-              }
-            }}
-            placeholder="08xxxxxxxxxx"
-            className={`w-full rounded-2xl border-2 bg-white px-5 py-4 text-base font-bold outline-none transition-colors sm:py-5 sm:text-lg ${
-              errors.phoneNumber
-                ? "border-destructive focus:border-destructive"
-                : "border-border focus:border-primary"
-            }`}
-            maxLength={15}
-            aria-invalid={!!errors.phoneNumber}
-            aria-describedby={errors.phoneNumber ? "phone-error" : undefined}
-          />
-          {errors.phoneNumber && (
-            <p id="phone-error" className="text-sm font-medium text-destructive">
-              {errors.phoneNumber}
-            </p>
-          )}
-        </section>
 
         {/* Complaint summary */}
         <section className="flex-1 space-y-3">

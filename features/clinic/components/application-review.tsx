@@ -1,12 +1,11 @@
 "use client";
 
-import { UserRound, Hash, Phone, Stethoscope, FileText, ClipboardCheck } from "lucide-react";
+import { UserRound, Hash, Stethoscope, FileText, ClipboardCheck } from "lucide-react";
 import type { ClinicMemberInfo } from "../types/clinic";
-import { maskNik, maskPhoneNumber } from "../validations/clinic-validation";
+import { maskNik } from "../validations/clinic-validation";
 
 type ApplicationReviewProps = {
   member: ClinicMemberInfo;
-  phoneNumber: string;
   serviceName: string;
   complaintSummary: string;
   documentsComplete: boolean;
@@ -14,7 +13,6 @@ type ApplicationReviewProps = {
 
 export function ApplicationReview({
   member,
-  phoneNumber,
   serviceName,
   complaintSummary,
   documentsComplete,
@@ -34,11 +32,6 @@ export function ApplicationReview({
       icon: Hash,
       label: "NIK",
       value: maskNik(member.nik),
-    },
-    {
-      icon: Phone,
-      label: "Nomor Kontak",
-      value: maskPhoneNumber(phoneNumber),
     },
     {
       icon: Stethoscope,
